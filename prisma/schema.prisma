@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("EDITOR") // ADMIN | EDITOR
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  auditLogs     AuditLog[]
+  logosUpdated  Logo[]      @relation("LogoUpdatedBy")
+  pricesUpdated PricePlan[] @relation("PriceUpdatedBy")
+}
+
+model SiteSettings {
+  id              String   @id @default("default")
+  siteName        String   @default("新手指南站")
+  tagline         String   @default("帮你一步步完成手机应用安装与账号注册")
+  homeTitle       String   @default("手机应用安装新手指南")
+  homeDescription String   @default("面向不熟悉手机应用安装与账号注册的新手，提供清晰易懂的操作说明。")
+  announcement    String?
+  footerText      String   @default("本站仅提供公开教程与服务说明，不代注册、不买卖账号、不收集密码或恢复码。")
+  contactEmail    String?
+  contactWechat   String?
+  disclaimer      String   @default("本站内容仅供学习参考。请始终通过官方渠道完成注册与下载。接码、VPN、静态住宅 IP 不能保证账号安全，也无法绕过平台风控。")
+  privacyText     String   @default("我们不会收集、存储或展示您的账号密码、验证码或恢复码。演示订单仅为测试数据。")
+  termsText       String   @default("使用本站服务即表示您理解：本站不提供代注册、账号买卖或任何规避平台规则的服务。")
+  seoTitle        String   @default("新手指南站 - 手机应用安装与账号注册教程")
+  seoDescription  String   @default("面向新手的苹果与安卓手机应用安装、官方账号注册、接码与 VPN 选择指南。")
+  logoAlt         String   @default("网站 Logo")
+  activeLogoId    String?
+  activeLogo      Logo?    @relation(fields: [activeLogoId], references: [id])
+  demoMode        Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+model NavItem {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  order     Int      @default(0)
+  visible   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EntryCard {
+  id          String   @id @default(cuid())
+  platform    String
+  title       String
+  description String
+  href        String
+  order       Int      @default(0)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Logo {
+  id          String         @id @default(cuid())
+  filename    String
+  path        String
+  mimeType    String
+  sizeBytes   Int
+  altText     String         @default("网站 Logo")
+  isDefault   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  updatedById String?
+  updatedBy   User?          @relation("LogoUpdatedBy", fields: [updatedById], references: [id])
+  settings    SiteSettings[]
+}
+
+model Tutorial {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  platform       String
+  title          String
+  summary        String
+  readingMinutes Int            @default(5)
+  status         String         @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  order          Int            @default(0)
+  sourceNote     String?
+  publishedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  steps          TutorialStep[]
+  faqs           TutorialFaq[]
+}
+
+model TutorialStep {
+  id         String   @id @default(cuid())
+  tutorialId String
+  tutorial   Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  title      String
+  body       String
+  tip        String?
+  sourceUrl  String?
+  sourceNote String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model TutorialFaq {
+  id         String   @id @default(cuid())
+  tutorialId String
+  tutorial   Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  question   String
+  answer     String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ServiceItem {
+  id          String      @id @default(cuid())
+  name        String
+  category    String
+  description String
+  notes       String?
+  status      String      @default("DRAFT")
+  available   Boolean     @default(true)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  prices      PricePlan[]
+  orders      Order[]
+}
+
+model PricePlan {
+  id          String      @id @default(cuid())
+  serviceId   String
+  service     ServiceItem @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name        String
+  amount      Float
+  currency    String      @default("CNY")
+  unit        String      @default("次")
+  description String?
+  validFrom   DateTime?
+  validTo     DateTime?
+  enabled     Boolean     @default(true)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  updatedById String?
+  updatedBy   User?       @relation("PriceUpdatedBy", fields: [updatedById], references: [id])
+  orders      Order[]
+}
+
+model PaymentMethod {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  enabled     Boolean  @default(true)
+  isDemo      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  orderNo         String         @unique
+  serviceId       String
+  service         ServiceItem    @relation(fields: [serviceId], references: [id])
+  pricePlanId     String?
+  pricePlan       PricePlan?     @relation(fields: [pricePlanId], references: [id])
+  paymentMethodId String?
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  amount          Float
+  currency        String         @default("CNY")
+  customerNote    String?
+  orderStatus     String         @default("PENDING")
+  paymentStatus   String         @default("UNPAID")
+  isDemo          Boolean        @default(true)
+  paidAt          DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model SmsProviderConfig {
+  id          String   @id @default("default")
+  mode        String   @default("demo")
+  displayName String   @default("演示接码")
+  note        String   @default("演示模式，未连接真实服务。未取得服务商授权及正式 API 文档前，不会发起真实下单或读取验证码。")
+  enabled     Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+model FaqItem {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String   @default("general")
+  status    String   @default("PUBLISHED")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
