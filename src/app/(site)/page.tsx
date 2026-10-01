@@ -28,40 +28,32 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="section">
+      <section className="section !pb-6 !pt-8 md:!pt-10">
         <div className="container-page">
           <div className="fade-up mx-auto max-w-3xl text-center">
             <Badge tone="orange">{settings.tagline}</Badge>
-            <h1 className="mt-4 font-display text-4xl font-bold text-ink md:text-5xl">
+            <h1 className="mt-3 font-display text-4xl font-bold text-ink md:text-5xl">
               {settings.siteName}
             </h1>
-            <p className="mt-4 text-lg text-ink-muted md:text-xl">{settings.homeTitle}</p>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-ink-soft md:text-base">
+            <p className="mt-3 text-base text-ink-muted md:text-lg">{settings.homeTitle}</p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-ink-soft">
               {settings.homeDescription}
             </p>
-            <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-              <Link href="/ios" className="btn btn-primary">
-                苹果手机指南
-              </Link>
-              <Link href="/android" className="btn btn-secondary">
-                安卓手机指南
-              </Link>
-            </div>
+          </div>
+
+          <div className="mt-8">
+            <PlatformEntryCards cards={cards} />
           </div>
 
           {settings.announcement ? (
-            <div className="mx-auto mt-8 max-w-3xl">
+            <div className="mx-auto mt-6 max-w-3xl">
               <Alert tone="demo" title="站点公告">
                 {settings.announcement}
               </Alert>
             </div>
           ) : null}
 
-          <div className="mt-10">
-            <PlatformEntryCards cards={cards} />
-          </div>
-
-          <div className="mt-8">
+          <div className="mt-6">
             <FeatureStrip />
           </div>
         </div>

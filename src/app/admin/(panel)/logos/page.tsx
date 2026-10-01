@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
@@ -138,7 +137,8 @@ export default function AdminLogosPage() {
         {logos.map((logo) => (
           <Card key={logo.id} orange={logo.id === activeLogoId}>
             <div className="flex h-28 items-center justify-center rounded-xl bg-white">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={logo.path}
                 alt={logo.altText}
                 width={96}

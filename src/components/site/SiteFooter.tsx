@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter({
@@ -20,7 +19,8 @@ export function SiteFooter({
         <div>
           <div className="mb-3 flex items-center gap-3">
             {logo ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={logo.path}
                 alt={logo.altText || logoAlt}
                 width={40}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
@@ -28,13 +27,13 @@ export function SiteHeader({
       <div className="container-page flex items-center justify-between gap-4 py-3">
         <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           {logo ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={logo.path}
               alt={logo.altText || logoAlt}
               width={44}
               height={44}
               className="h-10 w-10 rounded-xl object-contain md:h-11 md:w-11"
-              priority
             />
           ) : (
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white">
